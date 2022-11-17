@@ -1,0 +1,37 @@
+---
+- name: Playbook para configurar MySQL
+  hosts: AWS 
+  become: yes
+
+  vars:
+    - nombre_base_datos: test_01_ansible
+    - usuario_base_datos: test_01_ansible
+    - contrasena_base_datos: test_01_ansible
+
+  tasks:
+
+
+    - name: Instalamos el gestor de paquetes de Python3
+      apt:
+        name: python3-pip
+        state: present
+
+    - name: Instalamos el modulo de pymysql
+      pip:
+        name: pymysql
+        state: present
+
+    - name: Crear una base de datos
+      mysql_db:
+        name: "{{ nombre_base_datos }}"
+        state: present
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+
+    - name: Creamos un usuario para la Base de datos
+      no_log: true
+      mysql_user:
+        name: "{{ usuario_base_datos }}"
+        password: "{{ contrasena_base_datos }}"
+        priv: "{{ usuario_base_datos }}.*:ALL"
+        state: present
+        login_unix_socket: /var/run/mysqld/mysqld.sock
